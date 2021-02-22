@@ -243,9 +243,9 @@ async def download(event, gdrive, service, uri=None):
     if uri:
         LOGS.info("Not supported")
         await edit_or_reply(
-            gdrive,
-            " Not supported as of now",
-        )
+                gdrive,
+                " Not supported as of now",
+            )
         return "install blabla"
     else:
         try:
@@ -1143,15 +1143,6 @@ async def cancel_process(gdrive):
     """
     global is_cancelled
     gdrive = await edit_or_reply(gdrive, "`Cancelling...`")
-    try:
-        from .torrentutils import aria2
-
-        downloads = aria2.get_downloads()
-        if len(downloads) != 0:
-            aria2.remove_all(force=True)
-            aria2.autopurge()
-    except Exception as e:
-        LOGS.info(str(e))
     is_cancelled = True
     await asyncio.sleep(3.5)
     await gdrive.delete()
@@ -1183,9 +1174,6 @@ async def google_drive(gdrive):
         return None
     if isfile(value):
         file_path = value
-        if file_path.endswith(".torrent"):
-            uri = [file_path]
-            file_path = None
     elif isdir(value):
         folder_path = value
         global parent_Id
@@ -1222,7 +1210,7 @@ async def google_drive(gdrive):
             return True
     elif not value and event.reply_to_msg_id:
         output = await download(event, gdrive, service)
-        if output == "install torrentutils":
+        if output == "install blabla":
             return
         reply += output
         await gdrive.edit(reply, link_preview=False)
@@ -1291,7 +1279,7 @@ async def google_drive(gdrive):
         for dl in uri:
             try:
                 output = await download(event, gdrive, service, dl)
-                if output == "install torrentutils":
+                if output == "install blabla":
                     return
                 reply += str(output)
             except Exception as e:
@@ -1428,67 +1416,6 @@ async def set_upload_folder(gdrive):
     return
 
 
-async def check_progress_for_dl(event, gid, previous):
-    complete = None
-    global is_cancelled
-    global filenames
-    is_cancelled = False
-    from .torrentutils import aria2
-
-    while not complete:
-        file = aria2.get_download(gid)
-        complete = file.is_complete
-        if is_cancelled:
-            raise CancelProcess
-        try:
-            if not complete:
-                if not file.error_message:
-                    percentage = int(file.progress)
-                    downloaded = percentage * int(file.total_length) / 100
-                    prog_str = "**Downloading : **`[{0}{1}] {2}`".format(
-                        "".join("▰" for i in range(math.floor(percentage / 10))),
-                        "".join("▱" for i in range(10 - math.floor(percentage / 10))),
-                        file.progress_string(),
-                    )
-
-                    msg = (
-                        "**[URI - DOWNLOAD]**\n\n"
-                        f"**Name : **`{file.name}`\n"
-                        f"**Status : **`{file.status.capitalize()}`\n"
-                        f"{prog_str}\n"
-                        f"`{humanbytes(downloaded)} of {file.total_length_string()}"
-                        f" @ {file.download_speed_string()}`\n"
-                        f"**ETA** -> `{file.eta_string()}`\n"
-                    )
-                    if msg != previous:
-                        await event.edit(msg)
-                        msg = previous
-
-                    await asyncio.sleep(3)
-                    await check_progress_for_dl(gid, event, previous)
-                else:
-                    await event.edit("Error : `{}`".format(str(file.error_message)))
-                    return
-            else:
-                await event.edit(
-                    f"**Name : **`{file.name}`\n"
-                    f"**Size : **`{file.total_length_string()}`\n"
-                    f"**Path : **`{TMP_DOWNLOAD_DIRECTORY + file.name}`\n"
-                    "**Resp : **`OK - Successfully downloaded...`"
-                )
-                return file.name
-        except Exception as e:
-            if " not found" in str(e) or "'file'" in str(e):
-                await event.edit("Download Canceled :\n`{}`".format(file.name))
-                await asyncio.sleep(2.5)
-                return await event.delete()
-            elif " depth exceeded" in str(e):
-                file.remove(force=True)
-                await event.edit(
-                    "Download Auto Canceled :\n`{}`\nYour Torrent/Link is Dead.".format(
-                        file.name
-                    )
-                )
 
 
 @bot.on(
