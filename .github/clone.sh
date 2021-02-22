@@ -29,11 +29,11 @@ FILE=/app/.git
 if [ -d "$FILE" ] ; then
     echo "$FILE directory exists already."
 else
-    rm -rf userbot
+    rm -rf catuserbot
     rm -rf .github
     rm -rf sample_config.py
     git clone -b test1 https://github.com/sandy1709/catuserbot cat_ub
-    mv cat_ub/userbot .
+    mv cat_ub/catuserbot .
     mv cat_ub/.github . 
     mv cat_ub/.git .
     mv cat_ub/sample_config.py .
