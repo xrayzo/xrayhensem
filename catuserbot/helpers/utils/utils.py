@@ -5,7 +5,7 @@ from typing import Tuple
 
 from telethon import functions, types
 
-from userbot import LOGS
+from catuserbot import LOGS
 
 
 # executing of terminal commands

@@ -14,48 +14,52 @@ credits to @mrconfused and @sandy1709
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from sqlalchemy import Column, String
 
-from userbot.plugins.sql_helper import BASE, SESSION
+from catuserbot.plugins.sql_helper import BASE, SESSION
 
 
-class Gdrive(BASE):
-    __tablename__ = "catgdrive"
-    cat = Column(String(50), primary_key=True)
+class GBan(BASE):
+    __tablename__ = "gban"
+    chat_id = Column(String(14), primary_key=True)
+    reason = Column(String(127))
 
-    def __init__(self, cat):
-        self.cat = cat
+    def __init__(self, chat_id, reason=""):
+        self.chat_id = chat_id
+        self.reason = reason
 
 
-Gdrive.__table__.create(checkfirst=True)
+GBan.__table__.create(checkfirst=True)
 
 
-def is_folder(folder_id):
+def is_gbanned(chat_id):
     try:
-        return SESSION.query(Gdrive).filter(Gdrive.cat == str(folder_id))
+        return SESSION.query(GBan).filter(GBan.chat_id == str(chat_id)).one()
     except BaseException:
         return None
     finally:
         SESSION.close()
 
 
-def gparent_id(folder_id):
-    adder = SESSION.query(Gdrive).get(folder_id)
-    if not adder:
-        adder = Gdrive(folder_id)
+def get_gbanuser(chat_id):
+    try:
+        return SESSION.query(GBan).get(str(chat_id))
+    finally:
+        SESSION.close()
+
+
+def catgban(chat_id, reason):
+    adder = GBan(str(chat_id), str(reason))
     SESSION.add(adder)
     SESSION.commit()
 
 
-def get_parent_id():
-    try:
-        return SESSION.query(Gdrive).all()
-    except BaseException:
-        return None
-    finally:
-        SESSION.close()
-
-
-def rmparent_id(folder_id):
-    note = SESSION.query(Gdrive).filter(Gdrive.cat == folder_id)
-    if note:
-        note.delete()
+def catungban(chat_id):
+    rem = SESSION.query(GBan).get(str(chat_id))
+    if rem:
+        SESSION.delete(rem)
         SESSION.commit()
+
+
+def get_all_gbanned():
+    rem = SESSION.query(GBan).all()
+    SESSION.close()
+    return rem
