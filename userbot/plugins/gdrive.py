@@ -243,9 +243,9 @@ async def download(event, gdrive, service, uri=None):
     if uri:
         LOGS.info("Not supported")
         await edit_or_reply(
-                gdrive,
-                " Not supported as of now",
-            )
+            gdrive,
+            " Not supported as of now",
+        )
         return "install blabla"
     else:
         try:
@@ -1414,8 +1414,6 @@ async def set_upload_folder(gdrive):
             "**[PARENT - FOLDER]**\n\n" "**Status : **`OK - Successfully changed.`"
         )
     return
-
-
 
 
 @bot.on(
