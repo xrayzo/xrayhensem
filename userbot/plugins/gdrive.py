@@ -241,43 +241,12 @@ async def download(event, gdrive, service, uri=None):
         os.makedirs(TMP_DOWNLOAD_DIRECTORY)
         required_file_name = ""
     if uri:
-        try:
-            from .torrentutils import aria2, check_metadata
-
-            cattorrent = True
-        except Exception:
-            cattorrent = False
-        full_path = os.getcwd() + TMP_DOWNLOAD_DIRECTORY.strip(".")
-        if cattorrent:
-            LOGS.info("torrentutils exists")
-            if isfile(uri) and uri.endswith(".torrent"):
-                downloads = aria2.add_torrent(
-                    uri, uris=None, options={"dir": full_path}, position=None
-                )
-            else:
-                uri = [uri]
-                downloads = aria2.add_uris(
-                    uri, options={"dir": full_path}, position=None
-                )
-        else:
-            LOGS.info("No torrentutils")
-            await edit_or_reply(
+        LOGS.info("Not supported")
+        await edit_or_reply(
                 gdrive,
-                "`To use torrent files or download files from link install torrentutils from` @catplugins",
+                " Not supported as of now",
             )
-            return "install torrentutils"
-        from .torrentutils import aria2, check_metadata
-
-        gid = downloads.gid
-        filename = await check_progress_for_dl(gdrive, gid, previous=None)
-        file = aria2.get_download(gid)
-        if file.followed_by_ids:
-            new_gid = await check_metadata(gid)
-            filename = await check_progress_for_dl(gdrive, new_gid, previous=None)
-        try:
-            required_file_name = TMP_DOWNLOAD_DIRECTORY + filenames
-        except Exception:
-            required_file_name = TMP_DOWNLOAD_DIRECTORY + filename
+        return "install blabla"
     else:
         try:
             current_time = time.time()
